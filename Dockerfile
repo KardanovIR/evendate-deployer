@@ -1,1 +1,3 @@
-
+FROM php
+ADD app /app
+EXPOSE 5000
