@@ -21,9 +21,12 @@ RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes php7.0
 # add nodejs
 RUN apt-get install curl
-RUN curl -sL https://deb.nodesource.com/setup_6.x
+RUN curl -o node_installer.sh  https://deb.nodesource.com/setup_6.x
+RUN sh node_installer.sh
 RUN apt-get install -y nodejs
+
 # copy project files and configure php, apache
+WORKDIR /var/www/html
 RUN git clone https://kardanovir:kazuistika31415926@github.com/KardanovIR/evendate_web2
 RUN cd evendate_web2 && git checkout production
 ADD init.php /var/www/html/
@@ -42,8 +45,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install \
 
 # install dependence
 WORKDIR /var/www/html/node/
-RUN npm install --no-bin-links
-
+RUN npm install
 RUN chown -R www-data:www-data /var/www/html/
 ENV APACHE_RUN_USER www-data
 ENV APACHE_RUN_GROUP www-data
