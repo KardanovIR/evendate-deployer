@@ -39,7 +39,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install \
     php-pear \
     php-dev \
     php-mbstring
-RUN pecl install xdebug
+
 # install dependence
 WORKDIR /var/www/html/node/
 RUN npm install --no-bin-links
