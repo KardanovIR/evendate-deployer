@@ -7,7 +7,8 @@ RUN apt-get update && \
         apache2-doc \
         apache2-utils \
         software-properties-common \
-        nano
+        nano \
+        git
 # add php
 RUN apt-get update && \
         apt-get -qy upgrade && \
@@ -19,10 +20,12 @@ RUN add-apt-repository -y ppa:ondrej/php
 RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes php7.0
 # add nodejs
-RUN curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+RUN apt-get install curl
+RUN curl -sL https://deb.nodesource.com/setup_6.x
 RUN apt-get install -y nodejs
 # copy project files and configure php, apache
-COPY ./evendate_web2 /var/www/html/
+RUN git clone https://kardanovir:kazuistika31415926@github.com/KardanovIR/evendate_web2
+RUN cd evendate_web2 && git checkout production
 ADD init.php /var/www/html/
 RUN php /var/www/html/init.php
 ADD apache-config.conf /etc/apache2/sites-enabled/000-default.conf
