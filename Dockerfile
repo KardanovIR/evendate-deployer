@@ -1,4 +1,6 @@
 FROM ubuntu:16.04
+
+ARG GIT_BRANCH=test
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get -yq install \
         wget \
@@ -28,7 +30,7 @@ RUN apt-get install -y nodejs
 # copy project files and configure php, apache
 WORKDIR /var/www/html
 RUN git clone https://kardanovir:kazuistika31415926@github.com/KardanovIR/evendate_web2
-RUN cd evendate_web2 && git checkout production
+RUN cd evendate_web2 && git checkout $GIT_BRANCH
 ADD init.php /var/www/html/
 RUN php /var/www/html/init.php
 ADD apache-config.conf /etc/apache2/sites-enabled/000-default.conf
@@ -44,7 +46,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install \
     php-mbstring
 
 # install dependence
-WORKDIR /var/www/html/node/
+WORKDIR /var/www/html/evendate_web2/node/
 RUN npm install
 RUN chown -R www-data:www-data /var/www/html/
 ENV APACHE_RUN_USER www-data
