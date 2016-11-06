@@ -1,0 +1,8 @@
+{
+  "host": "evendate.ru",
+  "user": "postgres",
+  "password": "fwhr96GTxYW9sn",
+  "database": "evendate",
+  "port": 5432,
+  "exclude_tables": ["log_requests"]
+}

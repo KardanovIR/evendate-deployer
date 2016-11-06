@@ -1,6 +1,7 @@
 FROM ubuntu:16.04
 
-ARG GIT_BRANCH=test
+#ARG GIT_BRANCH=test
+
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get -yq install \
         wget \
@@ -8,16 +9,21 @@ RUN apt-get update && \
         apache2 \
         apache2-doc \
         apache2-utils \
+        openssh-server \
         software-properties-common \
         nano \
-        git
+        git \
+        sudo
+
 # add php
 RUN apt-get update && \
         apt-get -qy upgrade && \
         apt-get install -qy language-pack-en-base && \
-        locale-gen en_US.UTF-8
-    ENV LANG en_US.UTF-8
-    ENV LC_ALL en_US.UTF-8
+        locale-gen en_US.UTF-8 && \
+        locale-gen ru_RU.UTF-8
+
+ENV LANG en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
 RUN add-apt-repository -y ppa:ondrej/php
 RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes php7.0
@@ -26,17 +32,26 @@ RUN apt-get install curl
 RUN curl -o node_installer.sh  https://deb.nodesource.com/setup_6.x
 RUN sh node_installer.sh
 RUN apt-get install -y nodejs
+RUN npm install -g forever
+
+# add postgresql repo
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | \
+  apt-key add -
+
+# install postgresql9.5
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -yq install python-software-properties \
+    software-properties-common \
+    && apt-get -y -q install postgresql-9.5
+
 
 # copy project files and configure php, apache
-WORKDIR /var/www/html
-RUN git clone https://kardanovir:kazuistika31415926@github.com/KardanovIR/evendate_web2
-RUN cd evendate_web2 && git checkout $GIT_BRANCH
-ADD init.php /var/www/html/
-RUN php /var/www/html/init.php
+
 ADD apache-config.conf /etc/apache2/sites-enabled/000-default.conf
 RUN apt-get update
 RUN a2enmod rewrite
 RUN a2enmod headers
+RUN a2enmod proxy_http
 # install php supportive files
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install \
     php-pgsql \
@@ -45,20 +60,23 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install \
     php-dev \
     php-mbstring
 
-# install dependence
-WORKDIR /var/www/html/evendate_web2/node/
-RUN npm install
+
+
 RUN chown -R www-data:www-data /var/www/html/
 ENV APACHE_RUN_USER www-data
 ENV APACHE_RUN_GROUP www-data
 ENV APACHE_LOG_DIR /var/log/apache2
 ENV APACHE_LOCK_DIR /var/lock/apache2
 ENV APACHE_PID_FILE /var/run/apache2.pid
-# check versions
-RUN nodejs -v \
-    php -v \
-    apache2 -v
+
 WORKDIR /
 RUN rm /var/www/html/index.html
-EXPOSE 80
+EXPOSE 80 8080 443 8443 22 5432
+
+ENTRYPOINT ["/var/www/deployer/entrypoint.sh"]
 CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
+
+USER postgres
+RUN service postgresql start && psql --command "ALTER USER postgres PASSWORD 'APASSWORD';"
+RUN service postgresql start && psql --command "CREATE DATABASE evendate WITH OWNER = postgres ENCODING = 'UTF8' TABLESPACE = pg_default TEMPLATE=template0 LC_COLLATE = 'ru_RU.UTF-8' LC_CTYPE = 'ru_RU.UTF-8' CONNECTION LIMIT = -1;"
+USER root

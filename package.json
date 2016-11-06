@@ -1,0 +1,8 @@
+{
+  "name": "Evendate-deployer",
+  "version": "0.0.1",
+  "description": "",
+  "dependencies": {
+    "pg": "^4.4.3"
+  }
+}
