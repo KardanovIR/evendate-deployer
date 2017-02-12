@@ -52,6 +52,8 @@ RUN apt-get update
 RUN a2enmod rewrite
 RUN a2enmod headers
 RUN a2enmod proxy_http
+RUN a2enmod env
+
 # install php supportive files
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install \
     php-pgsql \

@@ -40,7 +40,10 @@ $htaccess = '/var/www/html/.htaccess';
 $data = file_get_contents($htaccess);
 $data = str_replace('Header add Access-Control-Allow-Origin "*"',
 	"Header add Access-Control-Allow-Origin \"http://{$branch_name}.test.evendate.ru\" \n 
-	Header add Access-Control-Allow-Credentials \"true\"", $data);
+	Header add Access-Control-Allow-Credentials \"true\" \n 
+	php_value upload_max_filesize 100M \n
+	php_value post_max_size 100M
+	", $data);
 
 $data .= "\nSetEnv ENV \"test\" 
 \nSetEnv TEST_DOMAIN \"{$branch_name}\"
