@@ -29,7 +29,7 @@ RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes php7.0
 # add nodejs
 RUN apt-get install curl
-RUN curl -o node_installer.sh  https://deb.nodesource.com/setup_6.x
+RUN curl -o node_installer.sh  https://deb.nodesource.com/setup_7.x
 RUN sh node_installer.sh
 RUN apt-get install -y nodejs
 RUN npm install -g forever
@@ -42,7 +42,7 @@ RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | \
 # install postgresql9.5
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -yq install python-software-properties \
     software-properties-common \
-    && apt-get -y -q install postgresql-9.5
+    && apt-get -y -q install postgresql-9.6
 
 
 # copy project files and configure php, apache
@@ -56,12 +56,15 @@ RUN a2enmod env
 
 # install php supportive files
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install \
-    php-pgsql \
+    php7.0-pgsql \
     php-mysql \
     php-pear \
     php-dev \
-    php-mbstring
+    php-mbstring \
+    php-xdebug
 
+#Set up debugger
+RUN echo "xdebug.remote_enable=1" >> /etc/php/7.0/apache2/php.ini
 
 
 RUN chown -R www-data:www-data /var/www/html/
