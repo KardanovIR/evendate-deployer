@@ -44,6 +44,16 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -yq install python-
     software-properties-common \
     && apt-get -y -q install postgresql-9.6
 
+# install Elastic
+RUN sudo add-apt-repository -y ppa:webupd8team/java
+RUN sudo apt-get update
+RUN sudo apt-get install -y --force-yes oracle-java8-installer
+RUN sudo apt-get install apt-transport-https
+RUN echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-5.x.list
+RUN sudo apt-get update && sudo apt-get install elasticsearch
+
+RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install http://dl.bintray.com/content/imotov/elasticsearch-plugins/org/elasticsearch/elasticsearch-analysis-morphology/5.4.1/elasticsearch-analysis-morphology-5.4.1.zip
+
 
 # copy project files and configure php, apache
 
@@ -61,7 +71,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install \
     php-pear \
     php-dev \
     php-mbstring \
-    php-xdebug
+    php-xdebug \
+    php-curl \
+    php7.0-curl
 
 #Set up debugger
 RUN echo "xdebug.remote_enable=1" >> /etc/php/7.0/apache2/php.ini
