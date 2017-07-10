@@ -73,7 +73,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install \
     php-mbstring \
     php-xdebug \
     php-curl \
-    php7.0-curl
+    php7.0-curl \
+    php7.0-imagick \
+    php7.0-zip
 
 #Set up debugger
 RUN echo "xdebug.remote_enable=1" >> /etc/php/7.0/apache2/php.ini
